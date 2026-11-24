@@ -1,0 +1,11 @@
+{
+  "threshold": 5,
+  "cases": [
+    {"id": "billing-double-charge", "kind": "billing", "ticket": "I was charged twice for my March invoice. Please refund one of them."},
+    {"id": "billing-card-update",   "kind": "billing", "ticket": "How do I change the credit card you bill each month?"},
+    {"id": "bug-export-crash",      "kind": "bug",     "ticket": "The app crashes every time I click Export to CSV."},
+    {"id": "account-reset-loop",    "kind": "account", "ticket": "The password reset link keeps sending me back to the sign-in page."},
+    {"id": "account-close",         "kind": "account", "ticket": "Please close my account and delete my profile."},
+    {"id": "other-office-hours",    "kind": "other",   "ticket": "Are your offices open on public holidays?"}
+  ]
+}

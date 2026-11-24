@@ -1,0 +1,50 @@
+name: smoke-eval
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  smoke-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Claude Code
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Run - smoke cases through claude -p
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MODEL: claude-opus-4-8
+        run: python3 evals/run_smoke.py
+
+      - name: Score - compare with the threshold
+        id: score
+        run: python3 evals/score_smoke.py
+
+      - name: Save results as an artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-results
+          path: results/
+
+      - name: Comment - post results on the pull request
+        if: always() && steps.score.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body-file results/summary.md
+
+      - name: Fail - below threshold
+        if: steps.score.outputs.passed != 'true'
+        run: |
+          echo "Smoke eval below threshold. See the pull request comment."
+          exit 1
